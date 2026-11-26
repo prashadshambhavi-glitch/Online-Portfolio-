@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Folio – Online Portfolio for Artists and Creatives</title>
+<meta name="description" content="Organize, present and discover creative work in one place.">
+<style>
+:root{
+  --bg:#faf8f5; --surface:#fff; --text:#1f1d1a; --muted:#6b665e; --border:#e5e0d8;
+  --accent:#c2410c; --accent-d:#9a3412; --ok:#15803d; --warn:#b45309; --bad:#b91c1c;
+  --radius:12px; --shadow:0 2px 10px rgba(0,0,0,.07);
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#171513;--surface:#211e1b;--text:#f3efe9;--muted:#a8a095;--border:#3a3530;--accent:#fb923c;--accent-d:#fdba74;--shadow:0 2px 10px rgba(0,0,0,.4)}
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+a{color:var(--accent)}
+a:hover{color:var(--accent-d)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.skip{position:absolute;left:-999px;top:0;background:var(--accent);color:#fff;padding:.6rem 1rem;z-index:100}
+.skip:focus{left:0}
+header.site{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20}
+.bar{max-width:1200px;margin:auto;padding:.7rem 1rem;display:flex;flex-wrap:wrap;align-items:center;gap:.5rem 1rem}
+.brand{font-family:Georgia,serif;font-size:1.5rem;font-weight:700;text-decoration:none;color:var(--text)}
+.brand span{color:var(--accent)}
+nav{display:flex;flex-wrap:wrap;gap:.25rem;margin-left:auto;align-items:center}
+nav a{padding:.45rem .8rem;border-radius:8px;text-decoration:none;color:var(--text);font-weight:500}
+nav a:hover,nav a[aria-current="page"]{background:var(--border)}
+main{max-width:1200px;margin:auto;padding:1.5rem 1rem 4rem}
+h1,h2,h3{font-family:Georgia,serif;line-height:1.2}
+h1{font-size:2rem;margin:.2rem 0 1rem}
+.hero{text-align:center;padding:1.5rem 0 .5rem}
+.hero p{color:var(--muted);max-width:620px;margin:0 auto 1rem}
+.btn{display:inline-flex;align-items:center;gap:.4rem;border:1px solid var(--accent);background:var(--accent);color:#fff;padding:.55rem 1.1rem;border-radius:8px;font:inherit;font-weight:600;cursor:pointer;text-decoration:none}
+.btn:hover{background:var(--accent-d);color:#fff}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.ghost:hover{background:var(--border);color:var(--accent-d)}
+.btn.danger{background:var(--bad);border-color:var(--bad)}
+.btn.ok{background:var(--ok);border-color:var(--ok)}
+.btn.sm{padding:.3rem .7rem;font-size:.88rem}
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:.75rem;margin:1rem 0}
+@media(max-width:640px){.filters{grid-template-columns:1fr}}
+label{display:block;font-weight:600;margin:.8rem 0 .25rem;font-size:.92rem}
+input,select,textarea{width:100%;padding:.6rem .75rem;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font:inherit}
+textarea{min-height:110px;resize:vertical}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0 1rem}
+.chip{border:1px solid var(--border);background:var(--surface);color:var(--text);padding:.2rem .7rem;border-radius:99px;font-size:.85rem;cursor:pointer}
+.chip:hover,.chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1.1rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;position:relative}
+.card img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:var(--border)}
+.card .body{padding:.8rem 1rem 1rem}
+.card h3{margin:0 0 .15rem;font-size:1.1rem}
+.card h3 a{color:var(--text);text-decoration:none}
+.card h3 a::after{content:"";position:absolute;inset:0}
+.meta{color:var(--muted);font-size:.88rem}
+.fav{position:absolute;top:.5rem;right:.5rem;z-index:2;width:38px;height:38px;border-radius:50%;border:none;background:rgba(255,255,255,.92);color:#444;font-size:1.2rem;cursor:pointer;box-shadow:var(--shadow)}
+.fav[aria-pressed="true"]{color:#dc2626}
+.badge{display:inline-block;font-size:.75rem;font-weight:700;padding:.1rem .55rem;border-radius:99px;background:var(--border);color:var(--text)}
+.badge.pending{background:#fef3c7;color:#92400e}
+.badge.rejected{background:#fee2e2;color:#991b1b}
+.badge.approved{background:#dcfce7;color:#166534}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem 1.4rem;box-shadow:var(--shadow)}
+.narrow{max-width:520px;margin:auto}
+.detail{display:grid;grid-template-columns:1.4fr 1fr;gap:1.5rem}
+@media(max-width:820px){.detail{grid-template-columns:1fr}}
+.detail img.big{width:100%;border-radius:var(--radius);border:1px solid var(--border)}
+.row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.8rem 0}
+.comment{border-top:1px solid var(--border);padding:.7rem 0}
+.avatar{width:72px;height:72px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:2rem;font-weight:700;font-family:Georgia,serif}
+table{width:100%;border-collapse:collapse;font-size:.93rem}
+th,td{text-align:left;padding:.5rem;border-bottom:1px solid var(--border);vertical-align:middle}
+.tablewrap{overflow-x:auto}
+.empty{text-align:center;color:var(--muted);padding:3rem 1rem}
+.preview{max-width:260px;border-radius:8px;margin-top:.5rem;border:1px solid var(--border)}
+.error{color:var(--bad);font-weight:600;margin:.6rem 0 0}
+#toast{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:.7rem 1.2rem;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:50}
+#toast.show{opacity:1}
+footer{text-align:center;color:var(--muted);padding:2rem 1rem;font-size:.88rem}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#app">Skip to main content</a>
+<header class="site">
+  <div class="bar">
+    <a class="brand" href="#/">Folio<span>.</span></a>
+    <nav id="nav" aria-label="Main navigation"></nav>
+  </div>
+</header>
+<main id="app" tabindex="-1"></main>
+<footer>Folio – an online portfolio for artists &amp; creatives · Demo data is stored in your browser only.</footer>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ============ Data layer (localStorage) ============ */
+const KEY = 'folio.v1';
+const CATS = ['Painting','Digital Art','Photography','Illustration','Sculpture','Graphic Design','Music','Writing','Other'];
+let db = { users: [], works: [], comments: [], session: null };
+let pendingImage = null;
+let filters = { q: '', cat: '', sort: 'new', tag: '' };
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+const fmt = d => new Date(d).toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' });
+
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(db)); }
+  catch (e) { toast('Storage is full – try a smaller image or delete some works.'); }
+}
+function load() {
+  try { const d = JSON.parse(localStorage.getItem(KEY)); if (d) db = d; } catch (e) {}
+}
+async function hash(s) {
+  try {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('folio:' + s));
+    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch (e) {
+    let h = 5381; for (const c of 'folio:' + s) h = ((h << 5) + h + c.charCodeAt(0)) | 0;
+    return 'x' + h;
+  }
+}
+function art(c1, c2) {
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='${c1}'/><stop offset='1' stop-color='${c2}'/></linearGradient></defs><rect width='800' height='600' fill='url(#g)'/><circle cx='560' cy='190' r='110' fill='rgba(255,255,255,.28)'/><circle cx='240' cy='410' r='170' fill='rgba(0,0,0,.14)'/></svg>`;
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+}
+async function seed() {
+  if (db.users.length) return;
+  const admin = { id:'u_admin', name:'Site Admin', email:'admin@demo.com', pass: await hash('admin123'), role:'admin', bio:'Keeps the gallery tidy.', favs:[], banned:false, joined:Date.now() };
+  const maya  = { id:'u_maya', name:'Maya Rao', email:'maya@demo.com', pass: await hash('maya123'), role:'creator', bio:'Digital painter exploring colour and light.', favs:[], banned:false, joined:Date.now() };
+  const leo   = { id:'u_leo', name:'Leo Fernandes', email:'leo@demo.com', pass: await hash('leo123'), role:'creator', bio:'Street and landscape photographer.', favs:[], banned:false, joined:Date.now() };
+  db.users = [admin, maya, leo];
+  const mk = (userId, title, cat, tags, c1, c2, desc, status='approved') => ({
+    id: uid(), userId, title, category: cat, tags, desc, alt: title + ' – artwork preview',
+    image: art(c1, c2), status, reports: [], created: Date.now() - Math.random() * 8e8
+  });
+  db.works = [
+    mk('u_maya','Sunset Drift','Digital Art',['sunset','warm','abstract'],'#f97316','#7c3aed','An abstract study of dusk colours bleeding into one another.'),
+    mk('u_maya','Ocean Bloom','Painting',['ocean','blue','organic'],'#0ea5e9','#14b8a6','Acrylic on canvas, inspired by tidal pools.'),
+    mk('u_maya','Neon Alley','Illustration',['city','neon','night'],'#ec4899','#1e1b4b','Night-time alley illustration for a zine cover.'),
+    mk('u_leo','Misty Ridge','Photography',['landscape','fog','mountain'],'#94a3b8','#334155','Early morning fog on the ridge line.'),
+    mk('u_leo','Golden Hour Market','Photography',['street','people','gold'],'#fbbf24','#b45309','Candid street moment at the evening market.'),
+    mk('u_leo','Paper Forest','Sculpture',['paper','craft','green'],'#4ade80','#166534','Layered paper sculpture, 40 × 30 cm.','pending')
+  ];
+  save();
+}
+
+/* ============ Helpers ============ */
+const me = () => db.users.find(u => u.id === db.session) || null;
+const userById = id => db.users.find(u => u.id === id);
+const isAdmin = () => me()?.role === 'admin';
+const canEdit = w => { const u = me(); return !!u && (u.id === w.userId || u.role === 'admin'); };
+const visible = w => w.status === 'approved' || canEdit(w);
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2800);
+}
+function go(h) { location.hash = h; }
+function resizeImage(file, max = 900) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onerror = rej;
+    r.onload = () => {
+      const img = new Image();
+      img.onerror = rej;
+      img.onload = () => {
+        const k = Math.min(1, max / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        res(c.toDataURL('image/jpeg', 0.8));
+      };
+      img.src = r.result;
+    };
+    r.readAsDataURL(file);
+  });
+}
+
+/* ============ Views ============ */
+function renderNav() {
+  const u = me(); const h = location.hash || '#/';
+  const l = (href, text) => `<a href="${href}" ${h === href ? 'aria-current="page"' : ''}>${text}</a>`;
+  let x = l('#/', 'Gallery');
+  if (u) {
+    x += l('#/favorites', 'Favorites ♥') + l('#/upload', 'Upload');
+    if (u.role === 'admin') x += l('#/admin', 'Admin');
+    x += l('#/profile/' + u.id, esc(u.name.split(' ')[0]));
+    x += `<a href="#/" data-act="logout">Log out</a>`;
+  } else x += l('#/login', 'Log in') + `<a class="btn sm" href="#/register">Sign up</a>`;
+  $('#nav').innerHTML = x;
+}
+
+function cardHTML(w) {
+  const u = userById(w.userId); const me_ = me(); const fav = me_?.favs.includes(w.id);
+  return `<article class="card">
+    ${me_ ? `<button class="fav" data-act="fav" data-id="${w.id}" aria-pressed="${!!fav}" aria-label="${fav ? 'Remove' : 'Add'} ${esc(w.title)} ${fav ? 'from' : 'to'} favorites">${fav ? '♥' : '♡'}</button>` : ''}
+    <img src="${w.image}" alt="${esc(w.alt || w.title)}" loading="lazy">
+    <div class="body">
+      <h3><a href="#/work/${w.id}">${esc(w.title)}</a></h3>
+      <div class="meta">by ${esc(u?.name || 'Unknown')} · ${esc(w.category)}</div>
+      ${w.status !== 'approved' ? `<span class="badge ${w.status}">${w.status}</span>` : ''}
+    </div></article>`;
+}
+
+function viewGallery() {
+  let list = db.works.filter(visible);
+  const allTags = [...new Set(list.flatMap(w => w.tags))].sort();
+  const q = filters.q.trim().toLowerCase();
+  if (q) list = list.filter(w => [w.title, w.desc, w.tags.join(' '), userById(w.userId)?.name].join(' ').toLowerCase().includes(q));
+  if (filters.cat) list = list.filter(w => w.category === filters.cat);
+  if (filters.tag) list = list.filter(w => w.tags.includes(filters.tag));
+  list.sort((a, b) => filters.sort === 'az' ? a.title.localeCompare(b.title) : filters.sort === 'fav' ? favCount(b) - favCount(a) : b.created - a.created);
+  return `
+  <section class="hero"><h1>Show your work. Be discovered.</h1>
+    <p>A home for artists and creatives to organize projects, present their portfolio and connect with visitors.</p>
+    ${me() ? '<a class="btn" href="#/upload">+ Add new work</a>' : '<a class="btn" href="#/register">Create your portfolio</a>'}
+  </section>
+  <form class="filters" role="search" aria-label="Search and filter works" onsubmit="return false">
+    <div><label for="q">Search</label><input id="q" type="search" placeholder="Title, tag, artist…" value="${esc(filters.q)}" data-filter="q"></div>
+    <div><label for="cat">Category</label><select id="cat" data-filter="cat"><option value="">All categories</option>${CATS.map(c => `<option ${filters.cat === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
+    <div><label for="sort">Sort by</label><select id="sort" data-filter="sort">
+      <option value="new" ${filters.sort === 'new' ? 'selected' : ''}>Newest</option>
+      <option value="fav" ${filters.sort === 'fav' ? 'selected' : ''}>Most favorited</option>
+      <option value="az" ${filters.sort === 'az' ? 'selected' : ''}>Title A–Z</option></select></div>
+  </form>
+  <div class="chips" aria-label="Filter by tag">${allTags.map(t => `<button class="chip ${filters.tag === t ? 'on' : ''}" data-act="tag" data-tag="${esc(t)}" aria-pressed="${filters.tag === t}">#${esc(t)}</button>`).join('')}</div>
+  <p class="meta" aria-live="polite">${list.length} work${list.length === 1 ? '' : 's'} found</p>
+  ${list.length ? `<div class="grid" id="grid">${list.map(cardHTML).join('')}</div>` : '<div class="empty">No works match your search.</div>'}`;
+}
+const favCount = w => db.users.filter(u => u.favs.includes(w.id)).length;
+
+function viewWork(id) {
+  const w = db.works.find(x => x.id === id);
+  if (!w || !visible(w)) return `<div class="empty"><h1>Work not found</h1><a href="#/">Back to gallery</a></div>`;
+  const u = userById(w.userId), cu = me(), fav = cu?.favs.includes(w.id);
+  const cm = db.comments.filter(c => c.workId === w.id).sort((a, b) => b.date - a.date);
+  return `<p><a href="#/">← Back to gallery</a></p>
+  <div class="detail">
+    <img class="big" src="${w.image}" alt="${esc(w.alt || w.title)}">
+    <div>
+      <h1>${esc(w.title)}</h1>
+      <p class="meta">by <a href="#/profile/${w.userId}">${esc(u?.name || 'Unknown')}</a> · ${esc(w.category)} · ${fmt(w.created)}
+        ${w.status !== 'approved' ? ` <span class="badge ${w.status}">${w.status}</span>` : ''}</p>
+      <p>${esc(w.desc).replace(/\n/g, '<br>')}</p>
+      <div class="chips">${w.tags.map(t => `<span class="chip">#${esc(t)}</span>`).join('')}</div>
+      <div class="row">
+        ${cu ? `<button class="btn ghost sm" data-act="fav" data-id="${w.id}" aria-pressed="${!!fav}">${fav ? '♥ Favorited' : '♡ Favorite'}</button>` : ''}
+        <span class="meta">${favCount(w)} favorite${favCount(w) === 1 ? '' : 's'}</span>
+        ${cu && cu.id !== w.userId ? `<button class="btn ghost sm" data-act="report" data-id="${w.id}">⚑ Report</button>` : ''}
+      </div>
+      ${canEdit(w) ? `<div class="row"><a class="btn sm" href="#/edit/${w.id}">Edit</a><button class="btn danger sm" data-act="delete" data-id="${w.id}">Delete</button></div>` : ''}
+      ${isAdmin() && w.status !== 'approved' ? `<div class="row"><button class="btn ok sm" data-act="approve" data-id="${w.id}">Approve</button></div>` : ''}
+    </div>
+  </div>
+  <section class="panel" style="margin-top:1.5rem" aria-labelledby="fb">
+    <h2 id="fb">Feedback (${cm.length})</h2>
+    ${cu ? `<form data-form="comment" data-id="${w.id}"><label for="ct">Leave a comment</label><textarea id="ct" required maxlength="500"></textarea><div class="row"><button class="btn sm">Post comment</button></div></form>`
+         : `<p><a href="#/login">Log in</a> to leave feedback.</p>`}
+    ${cm.map(c => `<div class="comment"><strong>${esc(userById(c.userId)?.name || 'Unknown')}</strong> <span class="meta">· ${fmt(c.date)}</span>
+      <p style="margin:.2rem 0">${esc(c.text)}</p>
+      ${cu && (cu.id === c.userId || isAdmin()) ? `<button class="btn ghost sm" data-act="delcomment" data-id="${c.id}">Delete</button>` : ''}</div>`).join('')}
+  </section>`;
+}
+
+function viewForm(id) {
+  const u = me(); if (!u) return needLogin();
+  const w = id ? db.works.find(x => x.id === id) : null;
+  if (id && (!w || !canEdit(w))) return `<div class="empty">You can't edit this work.</div>`;
+  pendingImage = w ? w.image : null;
+  return `<div class="panel narrow" style="max-width:680px"><h1>${w ? 'Edit work' : 'Upload new work'}</h1>
+  <form data-form="work" data-id="${w?.id || ''}" novalidate>
+    <label for="wt">Title *</label><input id="wt" required maxlength="80" value="${esc(w?.title)}">
+    <label for="wd">Description *</label><textarea id="wd" required maxlength="1000">${esc(w?.desc)}</textarea>
+    <label for="wc">Category *</label><select id="wc">${CATS.map(c => `<option ${w?.category === c ? 'selected' : ''}>${c}</option>`).join('')}</select>
+    <label for="wg">Tags (comma separated)</label><input id="wg" placeholder="e.g. portrait, ink, abstract" value="${esc(w?.tags.join(', '))}">
+    <label for="wf">Image file</label><input id="wf" type="file" accept="image/*" data-file>
+    <label for="wu">…or image URL</label><input id="wu" type="url" placeholder="https://…">
+    <label for="wa">Image description (alt text, for accessibility)</label><input id="wa" maxlength="150" value="${esc(w?.alt)}">
+    <img id="prev" class="preview" alt="Preview of selected image" ${pendingImage ? `src="${pendingImage}"` : 'hidden'}>
+    <p class="error" id="err" role="alert"></p>
+    <div class="row"><button class="btn">${w ? 'Save changes' : 'Publish work'}</button><a class="btn ghost" href="#/">Cancel</a></div>
+    ${!w && u.role !== 'admin' ? '<p class="meta">New works are reviewed by an admin before they appear publicly.</p>' : ''}
+  </form></div>`;
+}
+
+function viewProfile(id) {
+  const p = userById(id); if (!p) return `<div class="empty">Creator not found.</div>`;
+  const own = me()?.id === p.id;
+  const list = db.works.filter(w => w.userId === p.id && visible(w));
+  return `<div class="panel row" style="gap:1.2rem">
+    <div class="avatar" aria-hidden="true">${esc(p.name[0].toUpperCase())}</div>
+    <div style="flex:1;min-width:200px"><h1 style="margin:0">${esc(p.name)}</h1>
+      <p class="meta" style="margin:.2rem 0">${p.role === 'admin' ? 'Admin · ' : ''}Joined ${fmt(p.joined)} · ${list.length} work${list.length === 1 ? '' : 's'}</p>
+      <p style="margin:.4rem 0 0">${esc(p.bio || 'No bio yet.')}</p></div>
+  </div>
+  ${own ? `<details class="panel" style="margin:1rem 0"><summary><strong>Edit profile</strong></summary>
+    <form data-form="profile"><label for="pn">Name</label><input id="pn" required value="${esc(p.name)}">
+    <label for="pb">Bio</label><textarea id="pb" maxlength="300">${esc(p.bio)}</textarea>
+    <div class="row"><button class="btn sm">Save profile</button></div></form></details>` : ''}
+  <h2 style="margin-top:1.5rem">Portfolio</h2>
+  ${list.length ? `<div class="grid">${list.map(cardHTML).join('')}</div>` : '<div class="empty">No works yet.</div>'}`;
+}
+
+function viewFavorites() {
+  const u = me(); if (!u) return needLogin();
+  const list = db.works.filter(w => u.favs.includes(w.id) && visible(w));
+  return `<h1>Your favorites</h1>${list.length ? `<div class="grid">${list.map(cardHTML).join('')}</div>` : '<div class="empty">Nothing here yet – tap ♡ on any work.</div>'}`;
+}
+
+function viewAdmin() {
+  if (!isAdmin()) return `<div class="empty">Admins only.</div>`;
+  const pending = db.works.filter(w => w.status === 'pending');
+  const reported = db.works.filter(w => w.reports.length);
+  const row = w => `<tr><td><a href="#/work/${w.id}">${esc(w.title)}</a></td><td>${esc(userById(w.userId)?.name)}</td><td><span class="badge ${w.status}">${w.status}</span></td><td>${w.reports.length}</td>
+    <td>${w.status !== 'approved' ? `<button class="btn ok sm" data-act="approve" data-id="${w.id}">Approve</button> ` : ''}
+    ${w.status !== 'rejected' ? `<button class="btn ghost sm" data-act="reject" data-id="${w.id}">Reject</button> ` : ''}
+    <button class="btn danger sm" data-act="delete" data-id="${w.id}">Delete</button></td></tr>`;
+  const tbl = (arr, empty) => arr.length ? `<div class="tablewrap"><table><thead><tr><th>Title</th><th>Creator</th><th>Status</th><th>Reports</th><th>Actions</th></tr></thead><tbody>${arr.map(row).join('')}</tbody></table></div>` : `<p class="meta">${empty}</p>`;
+  return `<h1>Admin moderation</h1>
+  <section class="panel"><h2>Pending approval (${pending.length})</h2>${tbl(pending, 'Nothing waiting for review 🎉')}</section>
+  <section class="panel" style="margin-top:1rem"><h2>Reported works (${reported.length})</h2>${tbl(reported, 'No reports.')}</section>
+  <section class="panel" style="margin-top:1rem"><h2>All works (${db.works.length})</h2>${tbl(db.works, 'No works.')}</section>
+  <section class="panel" style="margin-top:1rem"><h2>Users (${db.users.length})</h2><div class="tablewrap"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+    ${db.users.map(u => `<tr><td><a href="#/profile/${u.id}">${esc(u.name)}</a></td><td>${esc(u.email)}</td><td>${u.role}</td><td>${u.banned ? 'Suspended' : 'Active'}</td>
+    <td>${u.role !== 'admin' ? `<button class="btn ghost sm" data-act="ban" data-id="${u.id}">${u.banned ? 'Reinstate' : 'Suspend'}</button>` : '—'}</td></tr>`).join('')}
+  </tbody></table></div></section>`;
+}
+
+function needLogin() { return `<div class="empty"><p>Please log in to continue.</p><a class="btn" href="#/login">Log in</a></div>`; }
+
+function viewAuth(mode) {
+  const reg = mode === 'register';
+  return `<div class="panel narrow"><h1>${reg ? 'Create your account' : 'Welcome back'}</h1>
+  <form data-form="${mode}" novalidate>
+    ${reg ? '<label for="an">Name</label><input id="an" autocomplete="name" required>' : ''}
+    <label for="ae">Email</label><input id="ae" type="email" autocomplete="email" required>
+    <label for="ap">Password ${reg ? '(min 6 characters)' : ''}</label><input id="ap" type="password" autocomplete="${reg ? 'new-password' : 'current-password'}" required>
+    <p class="error" id="err" role="alert"></p>
+    <div class="row"><button class="btn">${reg ? 'Sign up' : 'Log in'}</button></div>
+  </form>
+  <p>${reg ? 'Already have an account? <a href="#/login">Log in</a>' : 'New here? <a href="#/register">Create an account</a>'}</p>
+  ${reg ? '' : '<p class="meta">Demo accounts: admin@demo.com / admin123 · maya@demo.com / maya123</p>'}</div>`;
+}
+
+/* ============ Router ============ */
+function render() {
+  const [, page, id] = (location.hash || '#/').slice(1).split('/');
+  let html;
+  switch (page) {
+    case 'work': html = viewWork(id); break;
+    case 'upload': html = viewForm(); break;
+    case 'edit': html = viewForm(id); break;
+    case 'profile': html = viewProfile(id); break;
+    case 'favorites': html = viewFavorites(); break;
+    case 'admin': html = viewAdmin(); break;
+    case 'login': html = viewAuth('login'); break;
+    case 'register': html = viewAuth('register'); break;
+    default: html = viewGallery();
+  }
+  $('#app').innerHTML = html;
+  renderNav();
+}
+function refreshGrid() { // keep search input focus while typing
+  const keep = document.activeElement?.id, pos = document.activeElement?.selectionStart;
+  render();
+  if (keep) { const el = document.getElementById(keep); if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch (e) {} } }
+}
+window.addEventListener('hashchange', () => { render(); $('#app').focus({ preventScroll: true }); window.scrollTo(0, 0); });
+
+/* ============ Events ============ */
+document.addEventListener('input', e => {
+  const f = e.target.dataset.filter; if (f === 'q') { filters.q = e.target.value; refreshGrid(); }
+});
+document.addEventListener('change', async e => {
+  const f = e.target.dataset.filter;
+  if (f === 'cat' || f === 'sort') { filters[f] = e.target.value; refreshGrid(); }
+  if (e.target.dataset.file !== undefined && e.target.files[0]) {
+    try {
+      pendingImage = await resizeImage(e.target.files[0]);
+      const p = $('#prev'); p.src = pendingImage; p.hidden = false;
+    } catch (err) { toast('Could not read that image.'); }
+  }
+});
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const act = b.dataset.act, id = b.dataset.id, u = me();
+  const w = db.works.find(x => x.id === id);
+  if (act === 'logout') { db.session = null; save(); toast('Logged out'); return; }
+  if (act === 'tag') { filters.tag = filters.tag === b.dataset.tag ? '' : b.dataset.tag; render(); return; }
+  if (act === 'fav' && u) {
+    const i = u.favs.indexOf(id); i < 0 ? u.favs.push(id) : u.favs.splice(i, 1);
+    save(); render(); toast(i < 0 ? 'Added to favorites' : 'Removed from favorites'); return;
+  }
+  if (act === 'report' && u && w) {
+    if (!w.reports.includes(u.id)) { w.reports.push(u.id); save(); toast('Thanks – an admin will review this work.'); }
+    else toast('You already reported this work.'); return;
+  }
+  if (act === 'delete' && w && canEdit(w)) {
+    if (!confirm(`Delete "${w.title}"? This cannot be undone.`)) return;
+    db.works = db.works.filter(x => x.id !== id); db.comments = db.comments.filter(c => c.workId !== id);
+    db.users.forEach(x => x.favs = x.favs.filter(f => f !== id)); save(); toast('Work deleted');
+    location.hash.startsWith('#/admin') ? render() : go('#/'); return;
+  }
+  if ((act === 'approve' || act === 'reject') && isAdmin() && w) {
+    w.status = act === 'approve' ? 'approved' : 'rejected'; if (act === 'approve') w.reports = [];
+    save(); render(); toast('Work ' + w.status); return;
+  }
+  if (act === 'ban' && isAdmin()) { const t = userById(id); if (t) { t.banned = !t.banned; save(); render(); } return; }
+  if (act === 'delcomment') { db.comments = db.comments.filter(c => c.id !== id); save(); render(); toast('Comment removed'); }
+});
+document.addEventListener('submit', async e => {
+  const form = e.target.dataset.form; if (!form) return;
+  e.preventDefault();
+  const err = msg => { const el = $('#err'); if (el) el.textContent = msg; };
+  const u = me();
+
+  if (form === 'register') {
+    const name = $('#an').value.trim(), email = $('#ae').value.trim().toLowerCase(), pass = $('#ap').value;
+    if (!name) return err('Please enter your name.');
+    if (!/^\S+@\S+\.\S+$/.test(email)) return err('Please enter a valid email address.');
+    if (pass.length < 6) return err('Password must be at least 6 characters.');
+    if (db.users.some(x => x.email === email)) return err('An account with this email already exists.');
+    const nu = { id: uid(), name, email, pass: await hash(pass), role: 'creator', bio: '', favs: [], banned: false, joined: Date.now() };
+    db.users.push(nu); db.session = nu.id; save(); toast('Welcome, ' + name + '!'); go('#/profile/' + nu.id);
+  }
+  if (form === 'login') {
+    const email = $('#ae').value.trim().toLowerCase(), h = await hash($('#ap').value);
+    const found = db.users.find(x => x.email === email && x.pass === h);
+    if (!found) return err('Incorrect email or password.');
+    if (found.banned) return err('This account has been suspended.');
+    db.session = found.id; save(); toast('Logged in'); go('#/');
+  }
+  if (form === 'profile' && u) {
+    u.name = $('#pn').value.trim() || u.name; u.bio = $('#pb').value.trim(); save(); render(); toast('Profile updated');
+  }
+  if (form === 'comment' && u) {
+    const t = $('#ct').value.trim(); if (!t) return;
+    db.comments.push({ id: uid(), workId: e.target.dataset.id, userId: u.id, text: t, date: Date.now() }); save(); render(); toast('Comment posted');
+  }
+  if (form === 'work' && u) {
+    const title = $('#wt').value.trim(), desc = $('#wd').value.trim(), url = $('#wu').value.trim();
+    const img = pendingImage && !url ? pendingImage : (url || pendingImage);
+    if (!title) return err('Title is required.');
+    if (!desc) return err('Description is required.');
+    if (!img) return err('Please upload an image or provide an image URL.');
+    const tags = [...new Set($('#wg').value.split(',').map(t => t.trim().toLowerCase().replace(/^#/, '')).filter(Boolean))];
+    const data = { title, desc, category: $('#wc').value, tags, image: img, alt: $('#wa').value.trim() || title };
+    const id = e.target.dataset.id;
+    if (id) { Object.assign(db.works.find(x => x.id === id), data); save(); toast('Changes saved'); go('#/work/' + id); }
+    else {
+      const nw = { id: uid(), userId: u.id, ...data, status: u.role === 'admin' ? 'approved' : 'pending', reports: [], created: Date.now() };
+      db.works.push(nw); save();
+      toast(nw.status === 'pending' ? 'Submitted – awaiting admin approval' : 'Work published'); go('#/work/' + nw.id);
+    }
+  }
+});
+
+/* ============ Init ============ */
+(async function init() {
+  load(); await seed(); render();
+})();
+</script>
+</body>
+</html>
